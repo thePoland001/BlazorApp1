@@ -1,13 +1,17 @@
-@page "/uselessfact"
+@page "/randomanime"
 @inject HttpClient Http
 
-<PageTitle>Useless Facts</PageTitle>
+<PageTitle>Random Anime Girl</PageTitle>
 
 <h3>Random Anime Girl</h3>
 
-@if (imageUrl == null)
+@if (imageUrl == null && !loadFailed)
 {
     <p>Loading image...</p>
+}
+else if (loadFailed)
+{
+    <p>Unable to load an image right now. Please refresh the page.</p>
 }
 else
 {
@@ -16,6 +20,7 @@ else
 
 @code {
     private string? imageUrl;
+    private bool loadFailed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -24,18 +29,27 @@ else
 
     private async Task LoadImage()
     {
+        loadFailed = false;
+
         try
         {
-            var result = await Http.GetFromJsonAsync<ImageResponse>("https://api.waifu.pics/sfw/waifu");
-            imageUrl = result?.Url;
+            var result = await Http.GetFromJsonAsync<NekosResponse>("https://nekos.best/api/v2/waifu");
+            imageUrl = result?.Results?.FirstOrDefault()?.Url;
+            loadFailed = string.IsNullOrWhiteSpace(imageUrl);
         }
         catch
         {
+            loadFailed = true;
             imageUrl = null;
         }
     }
 
-    private class ImageResponse
+    private class NekosResponse
+    {
+        public NekosResult[]? Results { get; set; }
+    }
+
+    private class NekosResult
     {
         public string? Url { get; set; }
     }
