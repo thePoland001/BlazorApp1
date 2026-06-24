@@ -33,23 +33,46 @@ else
 
         try
         {
-            var result = await Http.GetFromJsonAsync<NekosResponse>("https://nekos.best/api/v2/waifu");
-            imageUrl = result?.Results?.FirstOrDefault()?.Url;
+            var result = await Http.GetFromJsonAsync<NekosLifeResponse>("https://nekos.life/api/v2/img/waifu");
+            imageUrl = result?.Url;
+            if (string.IsNullOrWhiteSpace(imageUrl))
+            {
+                imageUrl = await TryNekosBestFallback();
+            }
+
             loadFailed = string.IsNullOrWhiteSpace(imageUrl);
         }
         catch
         {
-            loadFailed = true;
-            imageUrl = null;
+            imageUrl = await TryNekosBestFallback();
+            loadFailed = string.IsNullOrWhiteSpace(imageUrl);
         }
     }
 
-    private class NekosResponse
+    private async Task<string?> TryNekosBestFallback()
     {
-        public NekosResult[]? Results { get; set; }
+        try
+        {
+            var result = await Http.GetFromJsonAsync<NekosBestResponse>("https://nekos.best/api/v2/waifu");
+            return result?.Results?.FirstOrDefault()?.Url;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
-    private class NekosResult
+    private class NekosLifeResponse
+    {
+        public string? Url { get; set; }
+    }
+
+    private class NekosBestResponse
+    {
+        public NekosBestResult[]? Results { get; set; }
+    }
+
+    private class NekosBestResult
     {
         public string? Url { get; set; }
     }
