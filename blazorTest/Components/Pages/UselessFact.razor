@@ -1,0 +1,34 @@
+@page "/uselessfact"
+@inject HttpClient Http
+
+<h3>Useless Fact of the Moment</h3>
+
+@if (fact == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <p>@fact</p>
+    <button @onclick="GetFact">Give me another</button>
+}
+
+@code {
+    private string? fact;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetFact();
+    }
+
+    private async Task GetFact()
+    {
+        var result = await Http.GetFromJsonAsync<FactResponse>("https://uselessfacts.jsph.pl/api/v2/facts/random");
+        fact = result?.Text;
+    }
+
+    private class FactResponse
+    {
+        public string? Text { get; set; }
+    }
+}
