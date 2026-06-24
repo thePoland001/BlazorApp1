@@ -3,42 +3,40 @@
 
 <PageTitle>Useless Facts</PageTitle>
 
-<h3>Useless Fact of the Moment</h3>
+<h3>Random Anime Girl</h3>
 
-@if (fact == null)
+@if (imageUrl == null)
 {
-    <p>Loading...</p>
+    <p>Loading image...</p>
 }
 else
 {
-    <p>@fact</p>
-    <button class="btn btn-primary" @onclick="GetFact">Give me another</button>
+    <img class="img-fluid rounded" src="@imageUrl" alt="Random anime girl" />
 }
 
 @code {
-    private string? fact;
+    private string? imageUrl;
 
     protected override async Task OnInitializedAsync()
     {
-        await GetFact();
+        await LoadImage();
     }
 
-    private async Task GetFact()
+    private async Task LoadImage()
     {
         try
         {
-            var url = $"https://uselessfacts.jsph.pl/api/v2/facts/random?language=en&cacheBust={DateTime.UtcNow.Ticks}";
-            var result = await Http.GetFromJsonAsync<FactResponse>(url);
-            fact = result?.Text ?? "Unable to load a fact.";
+            var result = await Http.GetFromJsonAsync<ImageResponse>("https://api.waifu.pics/sfw/waifu");
+            imageUrl = result?.Url;
         }
         catch
         {
-            fact = "Unable to load a fact right now. Please try again.";
+            imageUrl = null;
         }
     }
 
-    private class FactResponse
+    private class ImageResponse
     {
-        public string? Text { get; set; }
+        public string? Url { get; set; }
     }
 }
