@@ -1,6 +1,8 @@
 @page "/uselessfact"
 @inject HttpClient Http
 
+<PageTitle>Useless Facts</PageTitle>
+
 <h3>Useless Fact of the Moment</h3>
 
 @if (fact == null)
@@ -10,7 +12,7 @@
 else
 {
     <p>@fact</p>
-    <button @onclick="GetFact">Give me another</button>
+    <button class="btn btn-primary" @onclick="GetFact">Give me another</button>
 }
 
 @code {
@@ -23,8 +25,16 @@ else
 
     private async Task GetFact()
     {
-        var result = await Http.GetFromJsonAsync<FactResponse>("https://uselessfacts.jsph.pl/api/v2/facts/random");
-        fact = result?.Text;
+        try
+        {
+            var url = $"https://uselessfacts.jsph.pl/api/v2/facts/random?language=en&cacheBust={DateTime.UtcNow.Ticks}";
+            var result = await Http.GetFromJsonAsync<FactResponse>(url);
+            fact = result?.Text ?? "Unable to load a fact.";
+        }
+        catch
+        {
+            fact = "Unable to load a fact right now. Please try again.";
+        }
     }
 
     private class FactResponse
