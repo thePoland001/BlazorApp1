@@ -1,4 +1,4 @@
-using blazorTest.Components;
+using JoshHome.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
